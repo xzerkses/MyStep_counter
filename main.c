@@ -148,7 +148,8 @@ static ble_uuid_t m_adv_uuids[]          =                                      
 {
     {BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}
 };
-
+//declaring utily function
+uint16_t num_of_digits(uint16_t number);
 
 /**@brief Function for assert macro callback.
  *
@@ -478,29 +479,39 @@ int read_steps(void){
 	
 }
 void int_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
-	{
-			//int8_t bmi_data=
-			//get_bmi160_fifo_data();
-			nrf_gpio_pin_toggle(3); 
-			//read_steps();
+{
+			
+			nrf_gpio_pin_toggle(3); // set led 3 on
+			//read_steps
 			int8_t rslt = BMI160_OK;
 			rslt = bmi160_read_step_counter(&step_count,  &sensor);
 			if(rslt==BMI160_OK)
 			{
 				test_count++;
 			}
-			char count[7];
+			uint8_t count[7];
 			sprintf(count,"%d", test_count);
 		
-			
-			uint16_t length = 1;
-			uint8_t data_array[1];
-			data_array[0] = 7;
-      ble_nus_string_send(&m_nus, count, &length);
-		//err_code = 
-		//int8_t rslt = BMI160_OK;
-			//rslt = bmi160_read_step_counter(&step_count,  &sensor);
-	}
+			//send string to phone
+			uint16_t length = n_of_digits(test_count);
+			ble_nus_string_send(&m_nus, count, &length);
+		
+}
+/**@brief Function returns a number of digits in integer number
+*
+*/
+int n_of_digits(int num)
+{
+  int base=10;
+  int count=0;
+  while(num != 0)
+  {
+    num /= base;
+    count++;
+  }
+  return count;
+}
+	
 static void gpio_init()
 {
 		ret_code_t err_code;
