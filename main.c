@@ -50,6 +50,8 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "nordic_common.h"
 #include "nrf.h"
 #include "ble_hci.h"
@@ -128,8 +130,8 @@ BLE_NUS_DEF(m_nus);
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
 BLE_ADVERTISING_DEF(m_advertising);                                                 /**< Advertising module instance. */
 
-uint16_t step_count = 0;//stores the step counter value
-
+uint16_t step_count = 1;//stores the step counter value
+uint8_t test_count = 1;
 struct bmi160_dev sensor;
 
 //Flag used to indicate that SPI instance completed the transfer 
@@ -483,10 +485,18 @@ void int_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			//read_steps();
 			int8_t rslt = BMI160_OK;
 			rslt = bmi160_read_step_counter(&step_count,  &sensor);
+			if(rslt==BMI160_OK)
+			{
+				test_count++;
+			}
+			char count[7];
+			sprintf(count,"%d", test_count);
+		
+			
 			uint16_t length = 1;
 			uint8_t data_array[1];
 			data_array[0] = 7;
-      ble_nus_string_send(&m_nus, data_array, &length);
+      ble_nus_string_send(&m_nus, count, &length);
 		//err_code = 
 		//int8_t rslt = BMI160_OK;
 			//rslt = bmi160_read_step_counter(&step_count,  &sensor);
