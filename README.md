@@ -4,5 +4,5 @@
 3. Select Enable services from menu (three dots)
 4. swipe screen and make sure that you have info or verbose selected
  
-![GitHub Logo](/images/logo.png)
+![nRF connect](/images/nRF connect.png)
 Format: ![Alt Text](url)
