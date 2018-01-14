@@ -37,5 +37,4 @@
 .\_build\nrf_sdh.o: ..\..\..\..\..\..\components\softdevice\s132\headers\nrf_error_sdm.h
 .\_build\nrf_sdh.o: ..\..\..\..\..\..\components\softdevice\s132\headers\nrf_nvic.h
 .\_build\nrf_sdh.o: ..\..\..\..\..\..\components\libraries\experimental_log\nrf_log.h
-.\_build\nrf_sdh.o: ..\..\..\..\..\..\components\libraries\strerror\nrf_strerror.h
 .\_build\nrf_sdh.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_internal.h

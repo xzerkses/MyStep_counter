@@ -28,7 +28,6 @@
 .\_build\app_error_weak.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\_build\app_error_weak.o: ..\..\..\..\..\..\components\libraries\util\sdk_macros.h
 .\_build\app_error_weak.o: ..\..\..\..\..\..\components\libraries\experimental_section_vars\nrf_section.h
-.\_build\app_error_weak.o: ..\..\..\..\..\..\components\libraries\strerror\nrf_strerror.h
 .\_build\app_error_weak.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_internal.h
 .\_build\app_error_weak.o: ..\..\..\..\..\..\components\libraries\experimental_log\nrf_log_ctrl.h
 .\_build\app_error_weak.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_ctrl_internal.h

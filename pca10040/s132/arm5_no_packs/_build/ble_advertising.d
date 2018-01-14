@@ -39,7 +39,6 @@
 .\_build\ble_advertising.o: ..\..\..\..\..\..\components\softdevice\s132\headers\nrf_error_soc.h
 .\_build\ble_advertising.o: ..\..\..\..\..\..\components\libraries\experimental_log\nrf_log.h
 .\_build\ble_advertising.o: ..\..\..\..\..\..\components\libraries\experimental_section_vars\nrf_section.h
-.\_build\ble_advertising.o: ..\..\..\..\..\..\components\libraries\strerror\nrf_strerror.h
 .\_build\ble_advertising.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_internal.h
 .\_build\ble_advertising.o: ..\..\..\..\..\..\components\libraries\fstorage\nrf_fstorage.h
 .\_build\ble_advertising.o: ..\..\..\..\..\..\components\softdevice\common\nrf_sdh_ble.h

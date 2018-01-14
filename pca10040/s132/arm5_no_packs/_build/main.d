@@ -65,7 +65,6 @@
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\util\sdk_common.h
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\util\sdk_os.h
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\util\sdk_macros.h
-.\_build\main.o: ..\..\..\..\..\..\components\libraries\strerror\nrf_strerror.h
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_internal.h
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\experimental_log\nrf_log_ctrl.h
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_ctrl_internal.h

@@ -35,5 +35,4 @@
 .\_build\nrf_sdh_soc.o: ..\..\..\..\..\..\components\softdevice\s132\headers\nrf_error_soc.h
 .\_build\nrf_sdh_soc.o: ..\..\..\..\..\..\components\softdevice\common\nrf_sdh.h
 .\_build\nrf_sdh_soc.o: ..\..\..\..\..\..\components\libraries\experimental_log\nrf_log.h
-.\_build\nrf_sdh_soc.o: ..\..\..\..\..\..\components\libraries\strerror\nrf_strerror.h
 .\_build\nrf_sdh_soc.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_internal.h

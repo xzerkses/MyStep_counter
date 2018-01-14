@@ -42,5 +42,4 @@
 .\_build\nrf_drv_gpiote.o: ..\..\..\..\..\..\components\libraries\util\nrf_bitmask.h
 .\_build\nrf_drv_gpiote.o: ..\..\..\..\..\..\components\libraries\experimental_log\nrf_log.h
 .\_build\nrf_drv_gpiote.o: ..\..\..\..\..\..\components\libraries\experimental_section_vars\nrf_section.h
-.\_build\nrf_drv_gpiote.o: ..\..\..\..\..\..\components\libraries\strerror\nrf_strerror.h
 .\_build\nrf_drv_gpiote.o: ..\..\..\..\..\..\components\libraries\experimental_log\src\nrf_log_internal.h

@@ -95,7 +95,7 @@
 #define APP_BLE_OBSERVER_PRIO           1                                           /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
 #define APP_ADV_INTERVAL                300                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout (in units of seconds). */
+#define APP_ADV_TIMEOUT_IN_SECONDS      900  //15min                                 /**< The advertising timeout (in units of seconds). */
 
 #define MIN_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (20 ms), Connection interval uses 1.25 ms units. */
 #define MAX_CONN_INTERVAL               MSEC_TO_UNITS(75, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (75 ms), Connection interval uses 1.25 ms units. */
@@ -117,30 +117,31 @@
 #define SPI_MOSI_PIN 23 
 #define SPI_SCK_PIN 25 
 
-#define INT_PIN 20
+#define INT_PIN 11
 #define PIN_OUT 2
 #define SPI_INSTANCE 0 // SPI instance index. We use SPI master 0  
 
-#define NUM_TAPS 58 
-#define BLOCK_SIZE 28 
-#define BMI160_INT_LED 2
+#define BMI160_INT_LED 3
 
 //BLE_NUS_DEF(m_nus);                                                                 /**< BLE NUS service instance. */
 BLE_NUS_DEF(m_nus);
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
 BLE_ADVERTISING_DEF(m_advertising);                                                 /**< Advertising module instance. */
 
-uint16_t step_count = 1;//stores the step counter value
-uint8_t test_count = 1;
-struct bmi160_dev sensor;
+//stores the step counter value
+uint16_t step_count = 0;
 
-//Flag used to indicate that SPI instance completed the transfer 
-static volatile bool spi_xfer_done;
-//Declare memory to store the 
-static uint8_t SPI_RX_Buffer[100]; // Allocate a buffer for SPI reads
+//struck for sensor
+struct bmi160_dev sensor;
 
 //SPI instance 
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);
+//Flag used to indicate that SPI instance completed the transfer 
+static volatile bool spi_xfer_done;
+//Declare spi buffer
+static uint8_t SPI_RX_Buffer[100]; // Allocate a buffer for SPI reads
+
+
 
 static uint16_t   m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
 static uint16_t   m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;            /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
@@ -149,53 +150,8 @@ static ble_uuid_t m_adv_uuids[]          =                                      
     {BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}
 };
 //declaring utily function
-uint16_t num_of_digits(uint16_t number);
+uint16_t n_of_digits(uint16_t number);
 
-/**@brief Function for assert macro callback.
- *
- * @details This function will be called in case of an assert in the SoftDevice.
- *
- * @warning This handler is an example only and does not fit a final product. You need to analyse
- *          how your product is supposed to react in case of Assert.
- * @warning On assert from the SoftDevice, the system can only recover on reset.
- *
- * @param[in] line_num    Line number of the failing ASSERT call.
- * @param[in] p_file_name File name of the failing ASSERT call.
- */
-void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
-{
-    app_error_handler(DEAD_BEEF, line_num, p_file_name);
-}
-
-
-/**@brief Function for the GAP initialization.
- *
- * @details This function will set up all the necessary GAP (Generic Access Profile) parameters of
- *          the device. It also sets the permissions and appearance.
- */
-static void gap_params_init(void)
-{
-    uint32_t                err_code;
-    ble_gap_conn_params_t   gap_conn_params;
-    ble_gap_conn_sec_mode_t sec_mode;
-
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
-
-    err_code = sd_ble_gap_device_name_set(&sec_mode,
-                                          (const uint8_t *) DEVICE_NAME,
-                                          strlen(DEVICE_NAME));
-    APP_ERROR_CHECK(err_code);
-
-    memset(&gap_conn_params, 0, sizeof(gap_conn_params));
-
-    gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
-    gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency     = SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
-
-    err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
-    APP_ERROR_CHECK(err_code);
-}
 
 /** 
 	 * SPI user event handler. 
@@ -287,7 +243,7 @@ uint16_t len)
 	 return (int8_t)error; 
 } 
 
-int8_t sensor_init() 
+int8_t bmi160_sensor_init() 
 { 
 	 int8_t rslt = BMI160_OK; 
 	 //gpio_init();
@@ -300,15 +256,13 @@ int8_t sensor_init()
 	 
 	 // Initialize the sensor and check if everything went ok 
 	 rslt = bmi160_init(&sensor); 
-	 
-//	 return rslt; 
-//} 
+	return rslt;
+}	
 
 
-
-//int8_t bmi160_config()
-//{
-//		int8_t rslt = BMI160_OK;
+int8_t bmi160_sensor_mode_config()
+{
+		int8_t rslt = BMI160_OK;
 		
 		/* Select the Output data rate, range of accelerometer sensor */
 		
@@ -318,35 +272,14 @@ int8_t sensor_init()
 		
 		/* Select the power mode of accelerometer sensor */
 		sensor.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
-		
-//		/* Select the Output data rate, range of Gyroscope sensor */
-//		sensor.gyro_cfg.odr = BMI160_GYRO_ODR_25HZ;
-//		sensor.gyro_cfg.range = BMI160_GYRO_RANGE_1000_DPS;
-//		sensor.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
-
-//		/* Select the power mode of Gyroscope sensor */
-//		sensor.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
-
 		/* Set the sensor configuration */
 		rslt = bmi160_set_sens_conf(&sensor);
 
-////		//fifo 
-////		fifo_frame.data=fifo_buffer;
-////		fifo_frame.length=200;
-////		sensor.fifo=&fifo_frame;
-
-//		//fifo settings
-//		rslt=bmi160_set_fifo_config(BMI160_FIFO_GYRO, BMI160_ENABLE,&sensor);
-
 		struct bmi160_int_settg int_config;
-
 		//Interrupt channel/pin 1
 		int_config.int_channel = BMI160_INT_CHANNEL_1; 
-
 		/* Select the Interrupt type */
 		int_config.int_type = BMI160_STEP_DETECT_INT;// Choosing Step Detector interrupt
-
-		
 
 		// Enabling interrupt pins to act as output pin 
 		int_config.int_pin_settg.output_en = BMI160_ENABLE; 
@@ -362,17 +295,62 @@ int8_t sensor_init()
 		// Non-latched output 
 		int_config.int_pin_settg.latch_dur = BMI160_LATCH_DUR_NONE; 
 		/* Select the Step Detector interrupt parameters, Kindly use the recommended settings for step detector */
-		int_config.int_type_cfg.acc_step_detect_int.step_detector_mode = BMI160_STEP_DETECT_NORMAL;
+		int_config.int_type_cfg.acc_step_detect_int.step_detector_mode = BMI160_STEP_DETECT_SENSITIVE;
 		int_config.int_type_cfg.acc_step_detect_int.step_detector_en = BMI160_ENABLE;// 1-enable, 0-disable the step detector
 
 		// Set interrupt configurations 
 		rslt = bmi160_set_int_config(&int_config, &sensor); 
-		
-		rslt = BMI160_OK;
+			
 		uint8_t step_enable = 1;//enable the step counter
 		//set step counter
 		rslt = bmi160_set_step_counter(step_enable,  &sensor);
 		return rslt;
+}
+
+/**@brief Function for assert macro callback.
+ *
+ * @details This function will be called in case of an assert in the SoftDevice.
+ *
+ * @warning This handler is an example only and does not fit a final product. You need to analyse
+ *          how your product is supposed to react in case of Assert.
+ * @warning On assert from the SoftDevice, the system can only recover on reset.
+ *
+ * @param[in] line_num    Line number of the failing ASSERT call.
+ * @param[in] p_file_name File name of the failing ASSERT call.
+ */
+void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
+{
+    app_error_handler(DEAD_BEEF, line_num, p_file_name);
+}
+
+
+/**@brief Function for the GAP initialization.
+ *
+ * @details This function will set up all the necessary GAP (Generic Access Profile) parameters of
+ *          the device. It also sets the permissions and appearance.
+ */
+static void gap_params_init(void)
+{
+    uint32_t                err_code;
+    ble_gap_conn_params_t   gap_conn_params;
+    ble_gap_conn_sec_mode_t sec_mode;
+
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
+
+    err_code = sd_ble_gap_device_name_set(&sec_mode,
+                                          (const uint8_t *) DEVICE_NAME,
+                                          strlen(DEVICE_NAME));
+    APP_ERROR_CHECK(err_code);
+
+    memset(&gap_conn_params, 0, sizeof(gap_conn_params));
+
+    gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
+    gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
+    gap_conn_params.slave_latency     = SLAVE_LATENCY;
+    gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
+
+    err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
+    APP_ERROR_CHECK(err_code);
 }
 
 /**@brief Function for handling the data from the Nordic UART Service.
@@ -430,15 +408,7 @@ static void services_init(void)
 
     err_code = ble_nus_init(&m_nus, &nus_init);
     APP_ERROR_CHECK(err_code);
-//	/* YOUR_JOB: Add code to initialize the services used by the application.*/
-//    ret_code_t                         err_code;
-//    my_custom_service_init_t                     cus_init;
 
-//     // Initialize CUS Service init structure to zero.
-//    memset(&cus_init, 0, sizeof(cus_init));
-//	
-//    err_code = my_custom_service_init(&m_cus, &cus_init);
-//    APP_ERROR_CHECK(err_code);	
 }
 
 
@@ -465,6 +435,8 @@ static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
 }
 
 
+
+
 /**@brief Function for handling errors from the Connection Parameters module.
  *
  * @param[in] nrf_error  Error code containing information about what went wrong.
@@ -473,64 +445,57 @@ static void conn_params_error_handler(uint32_t nrf_error)
 {
     APP_ERROR_HANDLER(nrf_error);
 }
-int read_steps(void){
-	int8_t rslt = BMI160_OK;
-	rslt = bmi160_read_step_counter(&step_count,  &sensor);
-	
-}
+
 void int_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
 			
-			nrf_gpio_pin_toggle(3); // set led 3 on
-			//read_steps
-			int8_t rslt = BMI160_OK;
-			rslt = bmi160_read_step_counter(&step_count,  &sensor);
-			if(rslt==BMI160_OK)
-			{
-				test_count++;
-			}
-			uint8_t count[7];
-			sprintf(count,"%d", test_count);
+			
+			//add step on each interrupt event
+			
+			step_count++;
+			uint16_t err_code=0;
+			uint8_t count[5];
+			sprintf(count,"%u", step_count);
 		
-			//send string to phone
-			uint16_t length = n_of_digits(test_count);
-			ble_nus_string_send(&m_nus, count, &length);
-		
+			//send step count as string to phone
+			uint16_t length = n_of_digits(step_count);
+			err_code=ble_nus_string_send(&m_nus, count, &length);
+			if ( (err_code != NRF_ERROR_INVALID_STATE) && (err_code != NRF_ERROR_BUSY) )
+                    {
+                        APP_ERROR_CHECK(err_code);
+                    }
 }
 /**@brief Function returns a number of digits in integer number
 *
 */
-int n_of_digits(int num)
+uint16_t n_of_digits(uint16_t num)
 {
-  int base=10;
-  int count=0;
+  uint16_t count=0;
   while(num != 0)
   {
-    num /= base;
+    num /= 10;
     count++;
   }
   return count;
 }
 	
-static void gpio_init()
+uint32_t gpio_init()
 {
-		ret_code_t err_code;
-
-    err_code = nrf_drv_gpiote_init();
-    APP_ERROR_CHECK(err_code);
-	
+		uint32_t err_code=NRF_SUCCESS;
+		
+    if(!nrf_drv_gpiote_is_init())
+		{
+				err_code = nrf_drv_gpiote_init();
+		}
+		//set rising edge 
     nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_LOTOHI(true);
     in_config.pull = NRF_GPIO_PIN_NOPULL;
 
     err_code = nrf_drv_gpiote_in_init(INT_PIN, &in_config, int_pin_handler);
     APP_ERROR_CHECK(err_code);
-	
-//		nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
-
-//    err_code = nrf_drv_gpiote_out_init(PIN_OUT, &out_config);
-//    APP_ERROR_CHECK(err_code);
 
     nrf_drv_gpiote_in_event_enable(INT_PIN, true);
+		return err_code;
 } 
 
 /**@brief Function for initializing the Connection Parameters module.
@@ -725,8 +690,10 @@ static void ble_stack_init(void)
     ret_code_t err_code;
 
     err_code = nrf_sdh_enable_request();
-    APP_ERROR_CHECK(err_code);
-
+		APP_ERROR_CHECK(err_code);
+	
+		err_code=app_timer_init();
+		APP_ERROR_CHECK(err_code);
     // Configure the BLE stack using the default settings.
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
@@ -800,6 +767,11 @@ void bsp_event_handler(bsp_event_t event)
                 }
             }
             break;
+				case BSP_EVENT_KEY_2: //on buttom press 2
+					//LEDS_INVERT(BSP_LED_2_MASK);
+					//reset step counter value
+					step_count=0;
+					break;
 
         default:
             break;
@@ -925,9 +897,9 @@ static void buttons_leds_init(bool * p_erase_bonds)
 {
     bsp_event_t startup_event;
 
-    uint32_t err_code = bsp_init(BSP_INIT_LED | 3 | BSP_INIT_BUTTONS, bsp_event_handler);
+    uint32_t err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS, bsp_event_handler);
     APP_ERROR_CHECK(err_code);
-
+		//BSP_LED_3_MASK |
     err_code = bsp_btn_ble_init(NULL, &startup_event);
     APP_ERROR_CHECK(err_code);
 
@@ -959,33 +931,33 @@ static void power_manage(void)
  */
 int main(void)
 {
-    uint32_t err_code;
+    uint32_t err_code=NRF_SUCCESS;
     bool     erase_bonds;
-
-    // Initialize.
-		gpio_init();
-    err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
-
-    uart_init();
-    log_init();
-
-    buttons_leds_init(&erase_bonds);
-    ble_stack_init();
-		//bmi160_stepp_meas_init();
-	
 		
-		spi_config();
-		sensor_init();
+		app_timer_init();
+		APP_ERROR_CHECK(err_code);
+		//log_init();
+		buttons_leds_init(&erase_bonds);
+		// Initialize.
+		ble_stack_init();
 		
 		gap_params_init();
     gatt_init();
     services_init();
     advertising_init();
     conn_params_init();
+	/** bmi16 sensor confiquration **/
+		err_code=gpio_init();
+		APP_ERROR_CHECK(err_code);
+		spi_config();
+		
+		bmi160_sensor_init();
+		bmi160_sensor_mode_config();
+//    uart_init();
+//    log_init();
 
-    printf("\r\nUART Start!");
-    NRF_LOG_INFO("UART Start!");
+//    printf("\r\nUART Start!");
+//    NRF_LOG_INFO("UART Start!");
     err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
     APP_ERROR_CHECK(err_code);
 
