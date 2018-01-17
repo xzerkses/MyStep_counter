@@ -94,8 +94,8 @@
 
 #define APP_BLE_OBSERVER_PRIO           1                                           /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
-#define APP_ADV_INTERVAL                300                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS      900  //15min                                 /**< The advertising timeout (in units of seconds). */
+#define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
+#define APP_ADV_TIMEOUT_IN_SECONDS      180  //15min                                 /**< The advertising timeout (in units of seconds). */
 
 #define MIN_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (20 ms), Connection interval uses 1.25 ms units. */
 #define MAX_CONN_INTERVAL               MSEC_TO_UNITS(75, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (75 ms), Connection interval uses 1.25 ms units. */
@@ -767,11 +767,11 @@ void bsp_event_handler(bsp_event_t event)
                 }
             }
             break;
-				case BSP_EVENT_KEY_2: //on buttom press 2
-					//LEDS_INVERT(BSP_LED_2_MASK);
-					//reset step counter value
-					step_count=0;
-					break;
+		case BSP_EVENT_KEY_2: //on buttom press 2
+			//LEDS_INVERT(BSP_LED_2_MASK);
+			//reset step counter value
+			step_count=0;
+			break;
 
         default:
             break;
