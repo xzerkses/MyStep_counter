@@ -1,3 +1,6 @@
+##Description
+nRF dev board connects to smartphone using ble and sending step count, which is detected by Bosch bmi160 IMU
+
 # Instructions
 ## 1. Power up nRF board
 ## 2. Start nRF connect application and connect to Step_counter
