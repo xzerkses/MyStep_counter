@@ -1,4 +1,4 @@
-##Description<br></br>
+## Description<br></br>
 nRF dev board connects to smartphone using ble and sending step count, which is detected by Bosch bmi160 IMU
 
 # Instructions
